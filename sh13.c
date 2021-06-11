@@ -239,6 +239,9 @@ int main(int argc, char ** argv)
 				{
 					sprintf(sendBuffer,"C %s %d %s",gClientIpAddress,gClientPort,gName);
 
+					sendMessageToServer(gServerIpAddress, gServeurPort, sendBuffer); //A vérifier
+					
+					
 					// RAJOUTER DU CODE ICI
 
 					connectEnabled=0;
