@@ -335,14 +335,14 @@ int main(int argc, char ** argv)
 			case 'L':
 				// RAJOUTER DU CODE ICI
 				sscanf(gbuffer,"%c %s %s %s %s", &temp, gNames[0], gNames[1], gNames[2], gNames[3]);
-                		printf("COM=%c Joueur1=%s Joueur2=%s Joueur3=%s Joueur4=%s\n",temp, gNames[0], gNames[1], gNames[2], gNames[3]);
+                printf("COM=%c Joueur1=%s Joueur2=%s Joueur3=%s Joueur4=%s\n",temp, gNames[0], gNames[1], gNames[2], gNames[3]);
 
 				break;
 			// Message 'D' : le joueur recoit ses trois cartes
 			case 'D':
 				// RAJOUTER DU CODE ICI
 				sscanf(gbuffer,"%c %d %d %d", &temp, &b[0], &b[1], &b[2]);
-                		printf("COM=%c Carte1=%d Carte2=%d Carte3=%d\n",temp, b[0], b[1], b[2]);
+                printf("COM=%c Carte1=%d Carte2=%d Carte3=%d\n",temp, b[0], b[1], b[2]);
 
 				break;
 			// Message 'M' : le joueur recoit le n° du joueur courant
@@ -350,7 +350,7 @@ int main(int argc, char ** argv)
 			case 'M':
 				// RAJOUTER DU CODE ICI
 				sscanf(gbuffer,"%c %d", &temp, &gJoueurCourant);
-                		printf("COM=%c JoueurCourant=%d\n",temp, gJoueurCourant);
+                printf("COM=%c JoueurCourant=%d\n",temp, gJoueurCourant);
                 
                 if(gJoueurCourant == gId)
                 {
