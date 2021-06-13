@@ -28,6 +28,12 @@ int tableCartes[4][8];
 int b[3];
 int goEnabled;
 int connectEnabled;
+char temp;
+int temp2 = 0;
+int gJoueurCourant = 0;
+int ligne = 0;
+int colonne = 0;
+int Pcarte = 0;
 
 char *nbobjets[]={"5","5","5","5","4","3","3","3"};
 char *nbnoms[]={"Sebastian Moran", "irene Adler", "inspector Lestrade",
@@ -80,9 +86,10 @@ void *fn_serveur_tcp(void *arg)
                         printf("read error\n");
                         exit(1);
                 }
-                //printf("%s",gbuffer);
 
+                pthread_mutex_lock( &mutex );
                 synchro=1;
+                pthread_mutex_unlock( &mutex );
 
                 while (synchro);
 
@@ -132,6 +139,9 @@ int main(int argc, char ** argv)
 	char sendBuffer[256];
 	char lname[256];
 	int id;
+	int compteur = 0;
+	char gagnant[1][256];
+	char perdant[1][256];
 
         if (argc<6)
         {
@@ -148,8 +158,10 @@ int main(int argc, char ** argv)
     SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
  
+ //création de la texture du jeu
+ 
     SDL_Window * window = SDL_CreateWindow("SDL2 SH13",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, 0);
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, 0);	/ 
  
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -234,15 +246,13 @@ int main(int argc, char ** argv)
                 		break;
 			case  SDL_MOUSEBUTTONDOWN:
 				SDL_GetMouseState( &mx, &my );
-				//printf("mx=%d my=%d\n",mx,my);
+				printf("mx=%d my=%d\n",mx,my);
 				if ((mx<200) && (my<50) && (connectEnabled==1))
 				{
-					sprintf(sendBuffer,"C %s %d %s",gClientIpAddress,gClientPort,gName);
-
-					sendMessageToServer(gServerIpAddress, gServeurPort, sendBuffer); //A vérifier
-					
-					
+					sprintf(sendBuffer,"C %s %d %s\n",gClientIpAddress,gClientPort,gName);
+					printf("sendBuffer = %s\n", sendBuffer);
 					// RAJOUTER DU CODE ICI
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 
 					connectEnabled=0;
 				}
@@ -275,6 +285,7 @@ int main(int argc, char ** argv)
 						sprintf(sendBuffer,"G %d %d",gId, guiltSel);
 
 					// RAJOUTER DU CODE ICI
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 
 					}
 					else if ((objetSel!=-1) && (joueurSel==-1))
@@ -282,6 +293,7 @@ int main(int argc, char ** argv)
 						sprintf(sendBuffer,"O %d %d",gId, objetSel);
 
 					// RAJOUTER DU CODE ICI
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 
 					}
 					else if ((objetSel!=-1) && (joueurSel!=-1))
@@ -289,6 +301,7 @@ int main(int argc, char ** argv)
 						sprintf(sendBuffer,"S %d %d %d",gId, joueurSel,objetSel);
 
 					// RAJOUTER DU CODE ICI
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 
 					}
 				}
@@ -307,37 +320,100 @@ int main(int argc, char ** argv)
 
         if (synchro==1)
         {
+                pthread_mutex_lock( &mutex );
                 printf("consomme |%s|\n",gbuffer);
 		switch (gbuffer[0])
 		{
 			// Message 'I' : le joueur recoit son Id
 			case 'I':
 				// RAJOUTER DU CODE ICI
+				sscanf(gbuffer,"%c %d", &temp, &gId);
+				printf("COM=%c ID=%d\n",temp, gId);
 
 				break;
 			// Message 'L' : le joueur recoit la liste des joueurs
 			case 'L':
 				// RAJOUTER DU CODE ICI
+				sscanf(gbuffer,"%c %s %s %s %s", &temp, gNames[0], gNames[1], gNames[2], gNames[3]);
+                		printf("COM=%c Joueur1=%s Joueur2=%s Joueur3=%s Joueur4=%s\n",temp, gNames[0], gNames[1], gNames[2], gNames[3]);
 
 				break;
 			// Message 'D' : le joueur recoit ses trois cartes
 			case 'D':
 				// RAJOUTER DU CODE ICI
+				sscanf(gbuffer,"%c %d %d %d", &temp, &b[0], &b[1], &b[2]);
+                		printf("COM=%c Carte1=%d Carte2=%d Carte3=%d\n",temp, b[0], b[1], b[2]);
 
 				break;
 			// Message 'M' : le joueur recoit le n° du joueur courant
 			// Cela permet d'affecter goEnabled pour autoriser l'affichage du bouton go
 			case 'M':
 				// RAJOUTER DU CODE ICI
-
+				sscanf(gbuffer,"%c %d", &temp, &gJoueurCourant);
+                		printf("COM=%c JoueurCourant=%d\n",temp, gJoueurCourant);
+                
+                if(gJoueurCourant == gId)
+                {
+					goEnabled = 1;
+				}
+				else
+				{
+					goEnabled = 0;
+				}
+                
 				break;
 			// Message 'V' : le joueur recoit une valeur de tableCartes
 			case 'V':
 				// RAJOUTER DU CODE ICI
+				sscanf(gbuffer,"%c %d %d %d", &temp, &ligne, &colonne, &temp2);								
+				printf("COM=%c ligne=%d colonne=%d tableCartes=%d\n",temp, ligne, colonne, temp2);
+				if(ligne == gId)	
+				{	
+					if(compteur<8)	
+					{		
+					
+					tableCartes[ligne][colonne] = temp2;
+					compteur++;
+					}
+				}
+				
+				else
+				{
+				
+						tableCartes[ligne][colonne] = temp2;
+					
+				}				
+				
+				printf("tableCartes[%d][%d] = %d\n", ligne, colonne, tableCartes[ligne][colonne]);
 
 				break;
+				
+			case 'Q':
+
+				quit = 1;
+
+				break;
+				
+			case 'W' ://declare la victoire d'un joueur
+
+				sscanf(gbuffer,"%c %s", &temp, gagnant[0]);								
+				printf("Victoire de %s !\n\n",gagnant[0]);
+				quit = 1;
+				
+				break;
+				
+			case 'P' : //déclare la défaite d'un joueur
+
+				sscanf(gbuffer,"%c %s", &temp, perdant[0]);								
+				printf("Défaite de %s ...\n\n",perdant[0]);
+				
+				break;
+			
+			
+					
 		}
 		synchro=0;
+                pthread_mutex_unlock( &mutex );
         }
 
         SDL_Rect dstrect_grille = { 512-250, 10, 500, 350 };
