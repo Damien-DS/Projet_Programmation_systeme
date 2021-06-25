@@ -238,110 +238,117 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
-		if (SDL_PollEvent(&event))
+		if (SDL_PollEvent(&event)) //on attend un évenement SDL
 		{
 			//printf("un event\n");
-			switch (event.type)
+			switch (event.type) //selon le type d'évenement 
 			{
 			case SDL_QUIT:
-				quit = 1;
+				quit = 1; //fermer la fenetre de SDL quit =1 on sort de la boucle while (!quit)
 				break;
-			case SDL_MOUSEBUTTONDOWN:
-				SDL_GetMouseState(&mx, &my);
+			case SDL_MOUSEBUTTONDOWN: //clic de bouton de souris 
+				SDL_GetMouseState(&mx, &my); // récuperer la position de la souris
 				printf("mx=%d my=%d\n", mx, my);
-				if ((mx < 200) && (my < 50) && (connectEnabled == 1))
-				{
+				if ((mx < 200) && (my < 50) && (connectEnabled == 1)) //on appuie sur le button connecter
+				{   //on envoie un message .... pour que le client se connecte
 					sprintf(sendBuffer, "C %s %d %s\n", gClientIpAddress, gClientPort, gName);
 					printf("sendBuffer = %s\n", sendBuffer);
-					// RAJOUTER DU CODE ICI
-					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
+					
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer); 
 
 					connectEnabled = 0;
 				}
-				else if ((mx >= 0) && (mx < 200) && (my >= 90) && (my < 330))
+				else if ((mx >= 0) && (mx < 200) && (my >= 90) && (my < 330)) //on est dans la zone la ou les 4 joueurs sont affichés
 				{
 					joueurSel = (my - 90) / 60;
 					guiltSel = -1;
 				}
-				else if ((mx >= 200) && (mx < 680) && (my >= 0) && (my < 90))
+				else if ((mx >= 200) && (mx < 680) && (my >= 0) && (my < 90)) //on est dans la zone de sélection des symboles de cartes 
 				{
 					objetSel = (mx - 200) / 60;
 					guiltSel = -1;
 				}
-				else if ((mx >= 100) && (mx < 250) && (my >= 350) && (my < 740))
+				else if ((mx >= 100) && (mx < 250) && (my >= 350) && (my < 740)) //on est dans la zone de l'ecran ou on voit toutes les cartes de jeu 
+																				 //pour sélectionner le coupable
 				{
 					joueurSel = -1;
 					objetSel = -1;
 					guiltSel = (my - 350) / 30;
 				}
-				else if ((mx >= 250) && (mx < 300) && (my >= 350) && (my < 740))
+				else if ((mx >= 250) && (mx < 300) && (my >= 350) && (my < 740)) //la zone qui nous permet de désigner les joueurs qui supposés innocents
 				{
 					int ind = (my - 350) / 30;
 					guiltGuess[ind] = 1 - guiltGuess[ind];
 				}
-				else if ((mx >= 500) && (mx < 700) && (my >= 350) && (my < 450) && (goEnabled == 1))
+				else if ((mx >= 500) && (mx < 700) && (my >= 350) && (my < 450) && (goEnabled == 1)) //on est dans la zone du bouton go : goEnabled = 1 
+																									 //donc c'est notre tour de désigner un coupable ou 
+																									 //de demander des informations au serveur
 				{
-					printf("go! joueur=%d objet=%d guilt=%d\n", joueurSel, objetSel, guiltSel);
-					if (guiltSel != -1)
+					printf("go! joueur=%d objet=%d guilt=%d\n", joueurSel, objetSel, guiltSel); 
+					if (guiltSel != -1) 
 					{
-						//Designe un coupable
+						//Designer un coupable 
 						
 						sprintf(sendBuffer, "G %d %d", gId, guiltSel);
 
-						// RAJOUTER DU CODE ICI
+						
 						sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 					}
-					else if ((objetSel != -1) && (joueurSel == -1))
-					{
+					else if ((objetSel != -1) && (joueurSel == -1)) 
+					{   
+						//Demander qui possède au moins un de ces symboles (objetSel) 
+
 						sprintf(sendBuffer, "O %d %d", gId, objetSel);
 
-						// RAJOUTER DU CODE ICI
+						
 						sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 					}
 					else if ((objetSel != -1) && (joueurSel != -1))
-					{
+					{   
+						//Demander au joueur (joueurSel) combien de symboles (objetSel) possède
+
 						sprintf(sendBuffer, "S %d %d %d", gId, joueurSel, objetSel);
 
-						// RAJOUTER DU CODE ICI
+						
 						sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 					}
 				}
-				else
+				else //on passe le tour 
 				{
 					joueurSel = -1;
 					objetSel = -1;
 					guiltSel = -1;
 				}
 				break;
-			case SDL_MOUSEMOTION:
+			case SDL_MOUSEMOTION: //On actualise la position de la souris 
 				SDL_GetMouseState(&mx, &my);
 				break;
 			}
 		}
 
-		if (synchro == 1)
+		if (synchro == 1) //Le thread nous indique qu'on a recu un message
 		{
 			pthread_mutex_lock(&mutex);
 			printf("consomme |%s|\n", gbuffer);
-			switch (gbuffer[0])
+			switch (gbuffer[0]) //selon la premeire lettre qui designe le type message 
 			{
 			// Message 'I' : le joueur recoit son Id
 			case 'I':
-				// RAJOUTER DU CODE ICI
+				
 				sscanf(gbuffer, "%c %d", &temp, &gId);
 				printf("COM=%c ID=%d\n", temp, gId);
 
 				break;
 			// Message 'L' : le joueur recoit la liste des joueurs
 			case 'L':
-				// RAJOUTER DU CODE ICI
+				
 				sscanf(gbuffer, "%c %s %s %s %s", &temp, gNames[0], gNames[1], gNames[2], gNames[3]);
 				printf("COM=%c Joueur1=%s Joueur2=%s Joueur3=%s Joueur4=%s\n", temp, gNames[0], gNames[1], gNames[2], gNames[3]);
 
 				break;
 			// Message 'D' : le joueur recoit ses trois cartes
 			case 'D':
-				// RAJOUTER DU CODE ICI
+				
 				sscanf(gbuffer, "%c %d %d %d", &temp, &b[0], &b[1], &b[2]);
 				printf("COM=%c Carte1=%d Carte2=%d Carte3=%d\n", temp, b[0], b[1], b[2]);
 
@@ -349,10 +356,11 @@ int main(int argc, char **argv)
 			// Message 'M' : le joueur recoit le n° du joueur courant
 			// Cela permet d'affecter goEnabled pour autoriser l'affichage du bouton go
 			case 'M':
-				// RAJOUTER DU CODE ICI
+				
 				sscanf(gbuffer, "%c %d", &temp, &gJoueurCourant);
 				printf("COM=%c JoueurCourant=%d\n", temp, gJoueurCourant);
 
+				//Si le n° du joueur courant est le notre donc c'est notre tour
 				if (gJoueurCourant == gId)
 				{
 					goEnabled = 1;
@@ -364,25 +372,12 @@ int main(int argc, char **argv)
 				break;
 			// Message 'V' : le joueur recoit une valeur de tableCartes
 			case 'V':
-				// RAJOUTER DU CODE ICI
+				
 				sscanf(gbuffer, "%c %d %d %d", &temp, &ligne, &colonne, &temp2);
 				printf("COM=%c ligne=%d colonne=%d tableCartes=%d\n", temp, ligne, colonne, temp2);
-				if (ligne == gId)
-				{
-					if (compteur < 8)
-					{
-
-						tableCartes[ligne][colonne] = temp2;
-						compteur++;
-					}
-				}
-
-				else
-				{
-
-					tableCartes[ligne][colonne] = temp2;
-				}
-
+				
+				tableCartes[ligne][colonne] = temp2;
+					
 				printf("tableCartes[%d][%d] = %d\n", ligne, colonne, tableCartes[ligne][colonne]);
 
 				break;
@@ -392,16 +387,16 @@ int main(int argc, char **argv)
 				quit = 1;
 
 				break;
-
-			case 'W': //declare la victoire d'un joueur
+			// Message 'W' : declare la victoire d'un joueur
+			case 'W': 
 
 				sscanf(gbuffer, "%c %s", &temp, gagnant[0]);
 				printf("Victoire de %s !\n\n", gagnant[0]);
 				quit = 1;
 
 				break;
-
-			case 'P': //déclare la défaite d'un joueur
+			// Message 'P' : déclare la défaite d'un joueur
+			case 'P': 
 
 				sscanf(gbuffer, "%c %s", &temp, perdant[0]);
 				printf("Défaite de %s ...\n\n", perdant[0]);
