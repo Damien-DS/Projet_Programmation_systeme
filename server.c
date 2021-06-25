@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 				break;
 			case 'O':
 				// Le joueur demande la liste des joueus ayant l'objet séléctionné
-				sscanf(gbuffer, "%c %d %d", &temp, &Id, &objet_sel);
+				sscanf(buffer, "%c %d %d", &temp, &Id, &objet_sel);
 				// RAJOUTER DU CODE ICI
 				for (int i = 0; i < 4; i++)
 				{
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
 				break;
 			case 'S':
 				// Le joueur demande le nombre de l'objet voulu pour un joueur précis
-				sscanf(gbuffer, "%c %d %d %d", &temp, &Id, &objet_sel, &joueur_sel);
+				sscanf(buffer, "%c %d %d %d", &temp, &Id, &objet_sel, &joueur_sel);
 				// RAJOUTER DU CODE ICI
 				sprintf(reply, "V %d %d %d", joueur_sel, objet_sel, tableCartes[joueur_sel][objet_sel]);
 				sendMessageToClient(tcpClients[Id].ipAddress, tcpClients[Id].port, reply);
