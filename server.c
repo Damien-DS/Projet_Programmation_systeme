@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 				
 			case 'S':
 				// Le joueur demande le nombre de l'objet voulu pour un joueur précis
-				sscanf(buffer, "%c %d %d %d", &temp, &Id, &objet_sel, &joueur_sel);
+				sscanf(buffer, "%c %d %d %d", &temp, &Id, &joueur_sel & ,objet_sel);
 				sprintf(reply, "V %d %d %d", joueur_sel, objet_sel, tableCartes[joueur_sel][objet_sel]);
 				sendMessageToClient(tcpClients[Id].ipAddress, tcpClients[Id].port, reply);
 				
