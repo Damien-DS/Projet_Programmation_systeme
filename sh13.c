@@ -49,14 +49,12 @@ void *fn_serveur_tcp(void *arg)
 	socklen_t clilen;
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
-
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
 	{
 		printf("sockfd error\n");
 		exit(1);
 	}
-
 	bzero((char *)&serv_addr, sizeof(serv_addr));
 	portno = gClientPort;
 	serv_addr.sin_family = AF_INET;
@@ -67,7 +65,6 @@ void *fn_serveur_tcp(void *arg)
 		printf("bind error\n");
 		exit(1);
 	}
-
 	listen(sockfd, 5);
 	clilen = sizeof(cli_addr);
 	while (1)
@@ -78,7 +75,6 @@ void *fn_serveur_tcp(void *arg)
 			printf("accept error\n");
 			exit(1);
 		}
-
 		bzero(gbuffer, 256);
 		n = read(newsockfd, gbuffer, 255);
 		if (n < 0)
@@ -86,13 +82,10 @@ void *fn_serveur_tcp(void *arg)
 			printf("read error\n");
 			exit(1);
 		}
-
 		pthread_mutex_lock(&mutex);
 		synchro = 1;
 		pthread_mutex_unlock(&mutex);
-
-		while (synchro)
-			;
+		while (synchro);
 	}
 }
 
@@ -163,7 +156,6 @@ int main(int argc, char **argv)
 
 	SDL_Window *window = SDL_CreateWindow("SDL2 SH13",
 										  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, 0);
-	/
 
 		SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -318,6 +310,8 @@ int main(int argc, char **argv)
 					joueurSel = -1;
 					objetSel = -1;
 					guiltSel = -1;
+					sprintf(sendBuffer, "N");						
+					sendMessageToServer(gServerIpAddress, gServerPort, sendBuffer);
 				}
 				break;
 			case SDL_MOUSEMOTION: //On actualise la position de la souris 
