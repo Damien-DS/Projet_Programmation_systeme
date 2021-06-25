@@ -385,11 +385,11 @@ int main(int argc, char *argv[])
 			case 'G':
 
 				// Le joueur avec l'Id actuel a désigné un coupable
-				sscanf(gbuffer, "%c %d %d", &temp, &Id, &coupable_potentiel);
+				sscanf(buffer, "%c %d %d", &temp, &Id, &coupable_potentiel);
 				printf("Le joueur %s a désigné %s comme coupable\n", tcpClients[Id].name, nomcartes[coupable_potentiel]);
 				// RAJOUTER DU CODE ICI
 				if (coupable_potentiel == deck[12])
-				{
+				{				
 					sprintf(reply, "W %s", tcpClients[Id].name);
 					broadcastMessage(reply);
 					printf("Il a eu raison ;) \n");
