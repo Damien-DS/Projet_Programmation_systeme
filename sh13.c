@@ -361,7 +361,6 @@ int main(int argc, char **argv)
 				{
 					goEnabled = 0;
 				}
-
 				break;
 			// Message 'V' : le joueur recoit une valeur de tableCartes
 			case 'V':
