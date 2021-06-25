@@ -4,7 +4,7 @@ PROJET PROGRAMMATION SYSTÈME SH13
 Description générale de projet 
 
 L’objectif de ce projet est de fabriquer une application pour le jeu Sherlock 13. Il se joue avec un serveur et 4 clients.
-Le fichier Rapport.docx est le rapport de programmation correspondant
+Le fichier Rapport.pdf est le rapport de programmation correspondant
 
 #Dépendances 
 Sur une distribution debian il est nécessaire (en plus de gcc) d'avoir installé les libs SDL2 Classiques ainsi que les add-ons image et ttf.
