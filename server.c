@@ -215,6 +215,15 @@ void broadcastMessage(char *mess)
 							mess);
 }
 
+void joueursuivant()
+{
+	// On envoie un message a tout le monde pour definir qui est le joueur courant
+	if (joueurCourant < 3)
+		joueurCourant++;
+	else
+		joueurCourant = 0;
+}
+
 int main(int argc, char *argv[])
 {
 	int sockfd, newsockfd, portno;
@@ -316,7 +325,7 @@ int main(int argc, char *argv[])
 				{
 					int j = 0;
 					// On envoie ses cartes au joueur 0, ainsi que la ligne qui lui correspond dans tableCartes
-					// RAJOUTER DU CODE ICI
+
 					sprintf(reply, "D %d %d %d", deck[0], deck[1], deck[2]);
 					sendMessageToClient(tcpClients[0].ipAddress, tcpClients[0].port, reply);
 
@@ -329,7 +338,7 @@ int main(int argc, char *argv[])
 					j++;
 
 					// On envoie ses cartes au joueur 1, ainsi que la ligne qui lui correspond dans tableCartes
-					// RAJOUTER DU CODE ICI
+
 					sprintf(reply, "D %d %d %d", deck[3], deck[4], deck[5]);
 					sendMessageToClient(tcpClients[1].ipAddress, tcpClients[1].port, reply);
 
@@ -342,7 +351,7 @@ int main(int argc, char *argv[])
 					j++;
 
 					// On envoie ses cartes au joueur 2, ainsi que la ligne qui lui correspond dans tableCartes
-					// RAJOUTER DU CODE ICI
+
 					sprintf(reply, "D %d %d %d", deck[6], deck[7], deck[8]);
 					sendMessageToClient(tcpClients[2].ipAddress, tcpClients[2].port, reply);
 
@@ -355,7 +364,6 @@ int main(int argc, char *argv[])
 					j++;
 
 					// On envoie ses cartes au joueur 3, ainsi que la ligne qui lui correspond dans tableCartes
-					// RAJOUTER DU CODE ICI
 
 					//Envoi des trois cartes
 					sprintf(reply, "D %d %d %d", deck[9], deck[10], deck[11]);
@@ -369,7 +377,6 @@ int main(int argc, char *argv[])
 					}
 
 					// On envoie enfin un message a tout le monde pour definir qui est le joueur courant=0
-					// RAJOUTER DU CODE ICI
 					joueurCourant = 0;
 					sprintf(reply, "M %d", joueurCourant);
 					broadcastMessage(reply);
@@ -387,9 +394,9 @@ int main(int argc, char *argv[])
 				// Le joueur avec l'Id actuel a désigné un coupable
 				sscanf(buffer, "%c %d %d", &temp, &Id, &coupable_potentiel);
 				printf("Le joueur %s a désigné %s comme coupable\n", tcpClients[Id].name, nomcartes[coupable_potentiel]);
-				// RAJOUTER DU CODE ICI
+
 				if (coupable_potentiel == deck[12])
-				{				
+				{
 					sprintf(reply, "W %s", tcpClients[Id].name);
 					broadcastMessage(reply);
 					printf("Il a eu raison ;) \n");
@@ -400,12 +407,14 @@ int main(int argc, char *argv[])
 					broadcastMessage(reply);
 					printf("Il aurait mieux fait de réfléchir un peu plus ... \n");
 				}
-
+				joueursuivant();
+				sprintf(reply, "M %d", joueurCourant);
+				broadcastMessage(reply);
 				break;
 			case 'O':
 				// Le joueur demande la liste des joueus ayant l'objet séléctionné
 				sscanf(buffer, "%c %d %d", &temp, &Id, &objet_sel);
-				// RAJOUTER DU CODE ICI
+
 				for (int i = 0; i < 4; i++)
 				{
 					if (tableCartes[i][objet_sel] > 0)
@@ -421,12 +430,19 @@ int main(int argc, char *argv[])
 					}
 				}
 				break;
+				joueursuivant();
+				sprintf(reply, "M %d", joueurCourant);
+				broadcastMessage(reply);
 			case 'S':
 				// Le joueur demande le nombre de l'objet voulu pour un joueur précis
 				sscanf(buffer, "%c %d %d %d", &temp, &Id, &objet_sel, &joueur_sel);
-				// RAJOUTER DU CODE ICI
+
 				sprintf(reply, "V %d %d %d", joueur_sel, objet_sel, tableCartes[joueur_sel][objet_sel]);
 				sendMessageToClient(tcpClients[Id].ipAddress, tcpClients[Id].port, reply);
+				
+				joueursuivant();
+				sprintf(reply, "M %d", joueurCourant);
+				broadcastMessage(reply);
 				break;
 			default:
 				break;
